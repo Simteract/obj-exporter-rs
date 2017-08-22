@@ -18,15 +18,16 @@ pub fn export_to_file(_obj_set: &ObjSet, _path: &Path) -> Result<(), io::Error> 
 
 fn serialize_object(object: &Object) -> String {
     let name = format!("o {}\n", object.name);
-    let vertices = object.vertices.iter().map(serialize_vertex).join("");
+    let vertices = object.vertices.iter().map(|v| serialize_vertex(v, "v")).join("");
     let uvs = object.tex_vertices.iter().map(serialize_uv).join("");
+    let normals = object.normals.iter().map(|n| serialize_vertex(n, "vn")).join("");
     assert_eq!(object.geometry.len(), 1);
     let faces = object.geometry[0].shapes.iter().map(serialize_shape).join("");
-    format!("{}{}{}{}", name, vertices, uvs, faces)
+    format!("{}{}{}{}{}", name, vertices, uvs, normals, faces)
 }
 
-fn serialize_vertex(v: &Vertex) -> String {
-    format!("v {:.6} {:.6} {:.6}\n", v.x, v.y, v.z)
+fn serialize_vertex(v: &Vertex, prefix: &str) -> String {
+    format!("{} {:.6} {:.6} {:.6}\n", prefix, v.x, v.y, v.z)
 }
 
 fn serialize_uv(uv: &TVertex) -> String {
