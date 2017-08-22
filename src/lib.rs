@@ -7,14 +7,17 @@ use std::io::Write;
 use std::fs;
 use itertools::Itertools;
 
-pub use wavefront_obj::obj;
+use wavefront_obj::obj;
 pub use obj::{ObjSet, Object, Shape, Geometry, TVertex, Vertex, Primitive, VertexIndex, TextureIndex, NormalIndex, VTNIndex};
 
+/// Exports ObjSet to String.
+/// Exactly one Geometry is supported for now.
 pub fn export(obj_set: &ObjSet) -> String {
     let mut exporter = Exporter::new();
     exporter.export(obj_set)
 }
 
+/// Exports ObjSet to String and writes it to file.
 pub fn export_to_file(obj_set: &ObjSet, path: &Path) -> Result<(), io::Error> {
     let mut file = fs::File::create(path)?;
     let content = export(obj_set);
