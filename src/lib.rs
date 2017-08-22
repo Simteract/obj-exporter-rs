@@ -3,6 +3,8 @@ extern crate itertools;
 
 use std::path::Path;
 use std::io;
+use std::io::Write;
+use std::fs;
 use itertools::Itertools;
 
 pub use wavefront_obj::obj;
@@ -12,7 +14,10 @@ pub fn export(obj_set: &ObjSet) -> String {
     obj_set.objects.iter().map(serialize_object).join("")
 }
 
-pub fn export_to_file(_obj_set: &ObjSet, _path: &Path) -> Result<(), io::Error> {
+pub fn export_to_file(obj_set: &ObjSet, path: &Path) -> Result<(), io::Error> {
+    let mut file = fs::File::create(path)?;
+    let content = export(obj_set);
+    file.write(content.as_bytes())?;
     Ok(())
 }
 
@@ -40,8 +45,8 @@ fn serialize_uv(uv: &TVertex) -> String {
 
 fn serialize_shape(shape: &Shape) -> String {
     match shape.primitive {
-        Primitive::Point(vtn) => format!("f {}\n", serialize_vtn(vtn)),
-        Primitive::Line(vtn1, vtn2) => format!("f {} {}\n", serialize_vtn(vtn1), serialize_vtn(vtn2)),
+        Primitive::Point(vtn) => format!("p {}\n", serialize_vtn(vtn)),
+        Primitive::Line(vtn1, vtn2) => format!("l {} {}\n", serialize_vtn(vtn1), serialize_vtn(vtn2)),
         Primitive::Triangle(vtn1, vtn2, vtn3) => format!("f {} {} {}\n", serialize_vtn(vtn1), serialize_vtn(vtn2), serialize_vtn(vtn3)),
     }
 }
@@ -53,8 +58,4 @@ fn serialize_vtn(vtn: VTNIndex) -> String {
         (vi, Some(ti), Some(ni)) => format!("{}/{}/{}", vi + 1, ti + 1, ni + 1),
         (vi, None, Some(ni)) => format!("{}//{}", vi + 1, ni + 1),
     }
-}
-
-#[cfg(test)]
-mod tests {
 }
