@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Adam Rzepka <adam@simteract.com>"]
 description = "Wavefront obj exporter for Rust"
 repository = "https://github.com/Simteract/obj-exporter-rs"
-keywords = ["obj", "wavefront", "export", "exporter", "serialize", "3d"]
+keywords = ["obj", "wavefront", "exporter", "3d"]
 categories = ["games", "rendering::data-formats", "visualization"]
 license = "MIT"
 
