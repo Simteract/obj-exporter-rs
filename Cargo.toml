@@ -1,0 +1,8 @@
+[package]
+name = "obj-exporter"
+version = "0.1.0"
+authors = ["Adam Rzepka <adam@simteract.com>"]
+
+[dependencies]
+wavefront_obj = "5.1.0"
+itertools = "0.6.1"
