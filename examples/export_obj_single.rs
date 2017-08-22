@@ -65,5 +65,5 @@ pub fn main() {
       ],
     };
 
-    obj::export_to_file(&set, Path::new("output.obj")).unwrap();
+    obj::export_to_file(&set, Path::new("output_single.obj")).unwrap();
 }
