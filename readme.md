@@ -1,5 +1,7 @@
 # Wavefront obj exporter for Rust
 
+[![Build Status](https://travis-ci.org/Simteract/obj-exporter-rs.svg?branch=master)](https://travis-ci.org/Simteract/obj-exporter-rs)
+
 Uses data types from [wavefront_obj](https://github.com/PistonDevelopers/wavefront_obj).
 
 ## Supported features:
