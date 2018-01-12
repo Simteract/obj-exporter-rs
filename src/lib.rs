@@ -1,4 +1,5 @@
-extern crate itertools;
+#[macro_use]
+extern crate lazy_static;
 extern crate wavefront_obj;
 
 use std::path::Path;
@@ -26,6 +27,8 @@ struct Exporter<'a, W: 'a + Write> {
     v_base_id: usize,
     uv_base_id: usize,
     n_base_id: usize,
+    current_groups: Vec<GroupName>,
+    current_smoothing_groups: Vec<u32>,
 }
 
 impl<'a, W: 'a + Write> Exporter<'a, W> {
@@ -35,6 +38,8 @@ impl<'a, W: 'a + Write> Exporter<'a, W> {
             v_base_id: 1,
             uv_base_id: 1,
             n_base_id: 1,
+            current_groups: DEFAULT_GROUPS.clone(),
+            current_smoothing_groups: vec![0],
         }
     }
 
@@ -88,7 +93,39 @@ impl<'a, W: 'a + Write> Exporter<'a, W> {
     }
 
     fn serialize_shape(&mut self, shape: &Shape) -> Result<()> {
-        match shape.primitive {
+        self.update_and_serialize_groups(&shape.groups)?;
+        self.update_and_serialize_smoothing_groups(&shape.smoothing_groups)?;
+        self.serialize_primitive(&shape.primitive)
+    }
+
+    fn update_and_serialize_groups(&mut self, groups: &[GroupName]) -> Result<()> {
+        let normalized_groups = groups_or_default(groups);
+        if self.current_groups != normalized_groups {
+            write!(self.output, "g")?;
+            for g in normalized_groups {
+                write!(self.output, " {}", g)?;
+            }
+            writeln!(self.output, "")?;
+            self.current_groups = normalized_groups.to_owned();
+        }
+        Ok(())
+    }
+
+    fn update_and_serialize_smoothing_groups(&mut self, smoothing_groups: &[u32]) -> Result<()> {
+        let normalized_groups = smoothing_groups_or_default(smoothing_groups);
+        if self.current_smoothing_groups != normalized_groups {
+            write!(self.output, "s")?;
+            for g in normalized_groups {
+                write!(self.output, " {}", g)?;
+            }
+            writeln!(self.output, "")?;
+            self.current_smoothing_groups = normalized_groups.to_owned();
+        }
+        Ok(())
+    }
+
+    fn serialize_primitive(&mut self, primitive: &Primitive) -> Result<()> {
+        match *primitive {
             Primitive::Point(vtn) => {
                 write!(self.output, "p")?;
                 self.serialize_vtn(vtn)?;
@@ -137,5 +174,26 @@ impl<'a, W: 'a + Write> Exporter<'a, W> {
         self.v_base_id += object.vertices.len();
         self.uv_base_id += object.tex_vertices.len();
         self.n_base_id += object.normals.len();
+    }
+}
+
+lazy_static! {
+    static ref DEFAULT_GROUPS: Vec<GroupName> = vec!["default".to_owned()];
+    static ref DEFAULT_SMOOTHING_GROUPS: Vec<u32> = vec![0];
+}
+
+fn groups_or_default(groups: &[GroupName]) -> &[GroupName] {
+    if groups.is_empty() || groups[0].is_empty() {
+        &DEFAULT_GROUPS
+    } else {
+        groups
+    }
+}
+
+fn smoothing_groups_or_default(smoothing_groups: &[u32]) -> &[u32] {
+    if smoothing_groups.is_empty() {
+        &DEFAULT_SMOOTHING_GROUPS
+    } else {
+        smoothing_groups
     }
 }

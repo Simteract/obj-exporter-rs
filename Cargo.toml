@@ -13,4 +13,4 @@ travis-ci = { repository = "Simteract/obj-exporter-rs", branch = "master" }
 
 [dependencies]
 wavefront_obj = "5.1.0"
-itertools = "0.6.1"
+lazy_static = "1.0"

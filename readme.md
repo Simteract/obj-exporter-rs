@@ -9,9 +9,9 @@ Uses data types from [wavefront_obj](https://github.com/PistonDevelopers/wavefro
 - Vertices, UVs, normals
 - Points, lines, triangles
 - Many objects in file
+- Geometry groups
+- Smoothing groups
 
 ## Unsupported for now (feel free to contribute)
 - Materials
-- Geometry groups
-- Smoothing groups
 - Curves

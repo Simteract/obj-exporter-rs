@@ -254,3 +254,77 @@ f 5 7 8
   obj::export(&set, &mut output).unwrap();
   assert_eq!(String::from_utf8(output).unwrap(), expected);
 }
+
+fn create_geometry(groups: &[String], smoothing_groups: &[u32]) -> obj::Geometry {
+  Geometry {
+    material_name: None,
+    shapes: vec![(0, 1, 2), (0, 2, 3)]
+      .into_iter()
+      .map(|(x, y, z)| Shape {
+        primitive: Primitive::Triangle((x, None, None), (y, None, None), (z, None, None)),
+        groups: groups.to_owned(),
+        smoothing_groups: smoothing_groups.to_owned(),
+      })
+      .collect(),
+  }
+}
+
+#[test]
+pub fn test_squares_grouped() {
+  let set = ObjSet {
+    material_library: None,
+    objects: vec![
+      Object {
+        name: "Square".to_owned(),
+        vertices: vec![
+          (-1.0, -1.0, 0.0),
+          (1.0, -1.0, 0.0),
+          (1.0, 1.0, 0.0),
+          (-1.0, 1.0, 0.0),
+        ].into_iter()
+          .map(|(x, y, z)| Vertex { x, y, z })
+          .collect(),
+        tex_vertices: vec![],
+        normals: vec![],
+        geometry: vec![
+          // default group
+          create_geometry(&[], &[]),
+          // custom group
+          create_geometry(&["group_1".to_owned()], &[1]),
+          // default group again
+          create_geometry(&["".to_owned()], &[]),
+          // two groups
+          create_geometry(&["group_1".to_owned(), "group_2".to_owned()], &[1, 2]),
+          // The same groups as previous
+          create_geometry(&["group_1".to_owned(), "group_2".to_owned()], &[1, 2]),
+        ],
+      },
+    ],
+  };
+
+  let expected = r#"o Square
+v -1.000000 -1.000000 0.000000
+v 1.000000 -1.000000 0.000000
+v 1.000000 1.000000 0.000000
+v -1.000000 1.000000 0.000000
+f 1 2 3
+f 1 3 4
+g group_1
+s 1
+f 1 2 3
+f 1 3 4
+g default
+s 0
+f 1 2 3
+f 1 3 4
+g group_1 group_2
+s 1 2
+f 1 2 3
+f 1 3 4
+f 1 2 3
+f 1 3 4
+"#;
+  let mut output = Vec::<u8>::new();
+  obj::export(&set, &mut output).unwrap();
+  assert_eq!(String::from_utf8(output).unwrap(), expected);
+}
